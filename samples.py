@@ -7,11 +7,17 @@
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
 import util
-
 ## Constants
+'''
 DATUM_WIDTH = 0 # in pixels
 DATUM_HEIGHT = 0 # in pixels
+'''
 
+TEST_SET_SIZE = 100
+DIGIT_DATUM_WIDTH=28
+DIGIT_DATUM_HEIGHT=28
+FACE_DATUM_WIDTH=60
+FACE_DATUM_HEIGHT=70
 ## Module Classes
 
 class Datum:
@@ -60,7 +66,7 @@ class Datum:
     self.width = DATUM_WIDTH
     if data == None:
       data = [[' ' for i in range(DATUM_WIDTH)] for j in range(DATUM_HEIGHT)] 
-    self.pixels = util.arrayInvert(convertToInteger(data)) 
+    self.pixels = util.arrayInvert(convertToInteger(data))
     
   def getPixel(self, column, row):
     """
@@ -81,7 +87,7 @@ class Datum:
     rows = []
     data = util.arrayInvert(self.pixels)
     for row in data:
-      ascii = map(asciiGrayscaleConversionFunction, row)
+      ascii = list(map(asciiGrayscaleConversionFunction, row))
       rows.append( "".join(ascii) )
     return "\n".join(rows)
     
@@ -109,7 +115,7 @@ def loadDataFile(filename, n,width,height):
       data.append(list(fin.pop()))
     if len(data[0]) < DATUM_WIDTH-1:
       # we encountered end of file...
-      print "Truncating at %d examples (maximum)" % i
+      print ("Truncating at %d examples (maximum)" % i)
       break
     items.append(Datum(data,DATUM_WIDTH,DATUM_HEIGHT))
   return items
@@ -165,9 +171,27 @@ def convertToInteger(data):
   if type(data) != type([]):
     return IntegerConversionFunction(data)
   else:
-    return map(convertToInteger, data)
+    return list(map(convertToInteger, data))
 
 # Testing
+
+
+def basicFeatureExtractorDigit(datum):
+  """
+  Returns a set of pixel features indicating whether
+  each pixel in the provided datum is white (0) or gray/black (1)
+  """
+  a = datum.getPixels()
+
+  features = util.Counter()
+  for x in range(DIGIT_DATUM_WIDTH):
+    for y in range(DIGIT_DATUM_HEIGHT):
+      if datum.getPixel(x, y) > 0:
+        features[(x,y)] = 1
+      else:
+        features[(x,y)] = 0
+  return features
+
 
 def _test():
   import doctest
@@ -175,15 +199,18 @@ def _test():
   n = 1
 #  items = loadDataFile("facedata/facedatatrain", n,60,70)
 #  labels = loadLabelsFile("facedata/facedatatrainlabels", n)
-  items = loadDataFile("digitdata/trainingimages", n,28,28)
+  items = loadDataFile("digitdata/trainingimages", n, 28, 28)
   labels = loadLabelsFile("digitdata/traininglabels", n)
+  featureFunction = basicFeatureExtractorDigit
+  trainingData = list(map(featureFunction, items))
+  print(trainingData[0])
+  '''
   for i in range(1):
-    print items[i]
-    print items[i]
+    print (items[i])
     print (items[i].height)
     print (items[i].width)
-    print dir(items[i])
-    print items[i].getPixels()
-
+    print (dir(items[i]))
+    print (items[i].getPixels())
+   '''
 if __name__ == "__main__":
   _test()  

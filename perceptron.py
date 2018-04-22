@@ -8,6 +8,8 @@
 
 # Perceptron implementation
 import util
+import numpy as np
+import random
 PRINT = True
 
 class PerceptronClassifier:
@@ -23,11 +25,12 @@ class PerceptronClassifier:
     self.max_iterations = max_iterations
     self.weights = {}
     for label in legalLabels:
-      self.weights[label] = util.Counter() # this is the data-structure you should use
+      self.weights[label] = util.Counter()
+      # this is the data-structure you should use
 
   def setWeights(self, weights):
-    assert len(weights) == len(self.legalLabels);
-    self.weights == weights;
+    assert len(weights) == len(self.legalLabels)
+    self.weights == weights
       
   def train( self, trainingData, trainingLabels, validationData, validationLabels ):
     """
@@ -44,12 +47,28 @@ class PerceptronClassifier:
     self.features = trainingData[0].keys() # could be useful later
     # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
     # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
-    
+    weights = util.Counter()
+    for feature in self.features:
+      weights[feature] = 0
+    for label in self.legalLabels:
+      self.weights[label] = weights.copy()
+    #print(self.weights[label][0])
     for iteration in range(self.max_iterations):
-      print "Starting iteration ", iteration, "..."
+      print ("Starting iteration ", iteration, "...")
       for i in range(len(trainingData)):
+
+        datum = trainingData[i]
+        vectors = util.Counter()
+        for l in self.legalLabels:
+          vectors[l] = self.weights[l] * datum
+        predict_label = vectors.argMax()
+        if(trainingLabels[i] != predict_label):
+          # print(self.weights[label])
+          # print(datum[i])
+          self.weights[predict_label] -= datum
+          self.weights[trainingLabels[i]] += datum
+      
           "*** YOUR CODE HERE ***"
-          util.raiseNotDefined()
     
   def classify(self, data ):
     """

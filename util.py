@@ -9,7 +9,8 @@
 import sys
 import inspect
 import heapq, random
-
+import numpy as np
+from operator import itemgetter
 
 """
  Data structures useful for implementing SearchAgents
@@ -161,13 +162,13 @@ class Counter(dict):
     """
     for key in keys:
       self[key] += count
-  
+   
   def argMax(self):
     """
     Returns the key with the highest value.
     """
     if len(self.keys()) == 0: return None
-    all = self.items()
+    all = list(self.items())
     values = [x[1] for x in all]
     maxIndex = values.index(max(values))
     return all[maxIndex][0]
@@ -184,9 +185,8 @@ class Counter(dict):
     >>> a.sortedKeys()
     ['second', 'third', 'first']
     """
-    sortedItems = self.items()
-    compare = lambda x, y:  sign(y[1] - x[1])
-    sortedItems.sort(cmp=compare)
+    sortedItems = list(self.items())
+    sorted(sortedItems, key = itemgetter(1), reverse = True)
     return [x[0] for x in sortedItems]
   
   def totalCount(self):
@@ -318,7 +318,7 @@ class Counter(dict):
     return addend
     
 def raiseNotDefined():
-  print "Method not implemented: %s" % inspect.stack()[1][3]    
+  print ("Method not implemented: %s" % inspect.stack()[1][3])    
   sys.exit(1)
 
 def normalize(vectorOrCounter):
@@ -455,14 +455,14 @@ def lookup(name, namespace):
     options = [getattr(module, name) for module in modules if name in dir(module)]
     options += [obj[1] for obj in namespace.items() if obj[0] == name ]
     if len(options) == 1: return options[0]
-    if len(options) > 1: raise Exception, 'Name conflict for %s'
-    raise Exception, '%s not found as a method or class' % name
+    if len(options) > 1: raise Exception('Name conflict for %s')
+    raise Exception('%s not found as a method or class' % name)
 
 def pause():
   """
   Pauses the output stream awaiting user feedback.
   """
-  print "<Press enter/return to continue>"
+  print ("<Press enter/return to continue>")
   raw_input()
   
   
