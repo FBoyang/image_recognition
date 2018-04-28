@@ -16,7 +16,6 @@ import mira
 import samples
 import sys
 import util
-import timeit
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
@@ -429,32 +428,11 @@ def contestFeatureExtractorDigit(datum):
   return features
 
 def enhancedFeatureExtractorFace(datum):
-
-  features =  basicFeatureExtractorFace(datum)
-
-  for x in range(DIGIT_DATUM_WIDTH):
-    black = 0
-    for y in range(DIGIT_DATUM_HEIGHT):
-      black += datum.getPixel(x, y) % 1
-    features[(x, y ,0, black)] = 1
-    for i in range(DIGIT_DATUM_HEIGHT):
-      if(i != black):
-        features[(x, y, 0, i)] = 0
-
-
-  for x in range(DIGIT_DATUM_HEIGHT):
-    black = 0
-    for y in range(DIGIT_DATUM_WIDTH):
-      black += datum.getPixel(y, x) % 1
-    features[(y, x , 1, black)] = 1
-    for i in range(DIGIT_DATUM_HEIGHT):
-      if(i != black):
-        features[(y, x, 1, i)] = 0
   """
   Your feature extraction playground for faces.
   It is your choice to modify this.
   """
-  
+  features =  basicFeatureExtractorFace(datum)
   return features
 
 def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage):
@@ -684,10 +662,7 @@ def runClassifier(args, options):
   
   # Conduct training and testing
   print ("Training...")
-  start = timeit.default_timer()
   classifier.train(trainingData, trainingLabels, validationData, validationLabels)
-  stop = timeit.default_timer()
-  print("training time is: ", stop - start)
   print ("Validating...")
   guesses = classifier.classify(validationData)
   correct = [guesses[i] == validationLabels[i] for i in range(len(validationLabels))].count(True)
@@ -721,4 +696,3 @@ if __name__ == '__main__':
   args, options = readCommand( sys.argv[1:] ) 
   # Run classifier
   runClassifier(args, options)
-
