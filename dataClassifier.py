@@ -101,7 +101,6 @@ def enhancedFeatureExtractorDigit(datum):
     for i in range(DIGIT_DATUM_HEIGHT):
       if(i != black):
         features[(x, y, 0, i)] = 0
-
   '''
   '''
   for x in range(DIGIT_DATUM_HEIGHT):
@@ -179,7 +178,7 @@ def enhancedFeatureExtractorDigit(datum):
     for y in range(DIGIT_DATUM_HEIGHT):
       if(datum.getPixel(DIGIT_DATUM_WIDTH - x - 1, DIGIT_DATUM_HEIGHT - y - 1) > 0):
         flag = 1
-        end_column = x
+        end_column = DIGIT_DATUM_WIDTH - x - 1
         break
     if flag != 0:
       break
@@ -282,7 +281,6 @@ def enhancedFeatureExtractorDigit(datum):
         features[('white', 'row', i - 1 - start_row, i - start_row, -2)] = 0
 
   '''
-
   #['white', 'column', i - 1, i, num] means column i -1 has num more white pixels than row i 
   curr = 0
   for i in range(start_column, end_column + 1):
@@ -323,7 +321,6 @@ def enhancedFeatureExtractorDigit(datum):
         features[('white', 'column', i - 1 - start_column, i - start_column, 2)] = 1
         features[('white', 'column', i - 1 - start_column, i - start_column, -1)] = 0
         features[('white', 'column', i - 1 - start_column, i - start_column, -2)] = 0
-
   curr = 0
   for i in range(start_column, end_column + 1):
     prev = curr
@@ -721,4 +718,3 @@ if __name__ == '__main__':
   args, options = readCommand( sys.argv[1:] ) 
   # Run classifier
   runClassifier(args, options)
-
