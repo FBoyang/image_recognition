@@ -69,7 +69,6 @@ def enhancedFeatureExtractorDigit(datum):
   ##
   """
 
-  features = basicFeatureExtractorDigit(datum)
   #work not good
   '''
   features = util.Counter()
@@ -92,16 +91,7 @@ def enhancedFeatureExtractorDigit(datum):
   
 
   
-  '''
-  for x in range(DIGIT_DATUM_WIDTH):
-    black = 0
-    for y in range(DIGIT_DATUM_HEIGHT):
-      black += datum.getPixel(x, y) % 1
-    features[(x, y ,0, black)] = 1
-    for i in range(DIGIT_DATUM_HEIGHT):
-      if(i != black):
-        features[(x, y, 0, i)] = 0
-  '''
+  
   '''
   for x in range(DIGIT_DATUM_HEIGHT):
     black = 0
@@ -112,26 +102,7 @@ def enhancedFeatureExtractorDigit(datum):
       if(i != black):
         features[(y, x, 1, i)] = 0
   '''
-  #features = util.Counter()
-  for x in range(DIGIT_DATUM_WIDTH):
-    grey = 0
-    for y in range(DIGIT_DATUM_HEIGHT):
-      if(datum.getPixel(x, y) == 1):
-        grey += datum.getPixel(x, y)
-    features[(x, y ,2, grey)] = 1
-    for i in range(DIGIT_DATUM_HEIGHT):
-      if(i != grey):
-        features[(x, y, 2, i)] = 0
-
-  for x in range(DIGIT_DATUM_HEIGHT):
-    grey = 0
-    for y in range(DIGIT_DATUM_WIDTH):
-      if(datum.getPixel(y, x) == 1):
-        grey += datum.getPixel(y, x)
-    features[(y, x ,3, grey)] = 1
-    for i in range(DIGIT_DATUM_WIDTH):
-      if(i != grey):
-        features[(y, x, 3, i)] = 0
+  features = util.Counter()
 
   flag = 0
   start_row = 0
@@ -183,9 +154,61 @@ def enhancedFeatureExtractorDigit(datum):
     if flag != 0:
       break
 
+  hight = float(end_row - start_row)
+  width = float(end_column - start_column)
+  if(hight / width <1.2):
+    features['fat'] = 1
+    features['mid'] = 0
+    features['thin'] = 0
+
+  elif(hight / width >=1.2 and hight / width < 2):
+    features['fat'] = 0
+    features['mid'] = 1
+    features['thin'] = 0
+
+  else:
+    features['fat'] = 0
+    features['mid'] = 0
+    features['thin'] = 1
+
+
+  for x in range(DIGIT_DATUM_WIDTH):
+    for y in range(DIGIT_DATUM_HEIGHT):
+      if datum.getPixel(x, y) > 0:
+        features[(x,y)] = 1
+      else:
+        features[(x,y)] = 0
+  '''
+  for x in range(start_column, end_column + 1):
+    grey = 0
+    for y in range(start_row, end_row + 1):
+      if(datum.getPixel(x, y) == 1):
+        grey += 1
+    features[(x - start_column,'column', grey)] = 1
+  '''
+  for x in range(start_row, end_row + 1):
+    grey = 0
+    for y in range(start_column, end_column + 1):
+      if(datum.getPixel(y, x) == 1):
+        grey += datum.getPixel(y, x)
+    features[(x - start_row , 'row', grey)] = 1
+
+  '''
+  for x in range(start_column, end_column + 1):
+    black = 0
+    for y in range(start_row, end_row + 1):
+      black += datum.getPixel(x, y) % 1
+    features[(x - start_column, 'bcolumn', black)] = 1
+    for i in range(DIGIT_DATUM_HEIGHT):
+      if(i != black):
+        features[(x -start_column, 'bcolumn',i)] = 0
+    '''
+  
+
   # print("start column is {}, end column is {}".format(start_column, end_column))
   # print("start row is {}, end row is {}".format(start_row, end_row))
   #['black', 0, 0, i - 1, i, num] means row i -1 has num more non-white pixels than row i 
+  '''
   prev = 0
   curr = 0
   for i in range(start_row, end_row + 1):
@@ -279,7 +302,7 @@ def enhancedFeatureExtractorDigit(datum):
         features[('white', 'row', i - 1 - start_row, i - start_row, 2)] = 1
         features[('white', 'row', i - 1 - start_row, i - start_row, -1)] = 0
         features[('white', 'row', i - 1 - start_row, i - start_row, -2)] = 0
-
+  '''
   '''
   #['white', 'column', i - 1, i, num] means column i -1 has num more white pixels than row i 
   curr = 0
@@ -361,6 +384,7 @@ def enhancedFeatureExtractorDigit(datum):
         features[('white', 'column', i - 1 - start_column, i - start_column, -1)] = 0
         features[('white', 'column', i - 1 - start_column, i - start_column, -2)] = 0
   '''
+  '''
   curr = 0
   for i in range(start_column, end_column + 1):
     prev = curr
@@ -400,7 +424,7 @@ def enhancedFeatureExtractorDigit(datum):
         features[('black', 'column', i - 1 - start_column, i - start_column, 2)] = 1
         features[('black', 'column', i - 1 - start_column, i - start_column, -1)] = 0
         features[('black', 'column', i - 1 - start_column, i - start_column, -2)] = 0
-
+    '''
 
     # for k in range(-1 * DIGIT_DATUM_WIDTH, DIGIT_DATUM_WIDTH):
     #   if k != prev - curr:
@@ -426,27 +450,75 @@ def contestFeatureExtractorDigit(datum):
   return features
 
 def enhancedFeatureExtractorFace(datum):
-
   features =  basicFeatureExtractorFace(datum)
 
-  for x in range(DIGIT_DATUM_WIDTH):
+  flag = 0
+  start_row = 0
+  end_row = 0
+  start_column = 0
+  end_column = 0
+
+  #check start row
+  for x in range(FACE_DATUM_HEIGHT):
+    flag = 0
+    for y in range(FACE_DATUM_WIDTH):
+      if(datum.getPixel(y, x) > 0):
+        flag = 1
+        start_row = x
+        break
+    if flag != 0:
+      break
+
+  #check end row
+  for x in range(FACE_DATUM_HEIGHT):
+    flag = 0
+    for y in range(FACE_DATUM_WIDTH):
+      if(datum.getPixel(FACE_DATUM_WIDTH - y - 1, FACE_DATUM_HEIGHT - x - 1) > 0):
+        flag = 1
+        end_row = FACE_DATUM_HEIGHT - x - 1
+        break
+    if flag != 0:
+      break
+  
+  #check start column
+  for x in range(FACE_DATUM_WIDTH):
+    flag = 0
+    for y in range(FACE_DATUM_HEIGHT):
+      if(datum.getPixel(x, y) > 0):
+        flag = 1
+        start_column = x
+        break
+    if flag != 0:
+      break
+
+  #check end column
+  for x in range(FACE_DATUM_WIDTH):
+    flag = 0
+    for y in range(FACE_DATUM_HEIGHT):
+      if(datum.getPixel(FACE_DATUM_WIDTH - x - 1, FACE_DATUM_HEIGHT - y - 1) > 0):
+        flag = 1
+        end_column = FACE_DATUM_WIDTH - x - 1
+        break
+    if flag != 0:
+      break
+
+  hight = float(end_row - start_row)
+  width = float(end_column - start_column)
+
+  
+
+  for x in range(start_column, end_column + 1):
     black = 0
-    for y in range(DIGIT_DATUM_HEIGHT):
+    for y in range(start_row, end_row + 1):
       black += datum.getPixel(x, y) % 1
-    features[(x, y ,0, black)] = 1
-    for i in range(DIGIT_DATUM_HEIGHT):
-      if(i != black):
-        features[(x, y, 0, i)] = 0
+    features[(x - start_column , 'column', black)] = 1
 
 
-  for x in range(DIGIT_DATUM_HEIGHT):
+  for x in range(start_row, end_row + 1):
     black = 0
-    for y in range(DIGIT_DATUM_WIDTH):
+    for y in range(start_column, end_column + 1):
       black += datum.getPixel(y, x) % 1
-    features[(y, x , 1, black)] = 1
-    for i in range(DIGIT_DATUM_HEIGHT):
-      if(i != black):
-        features[(y, x, 1, i)] = 0
+    features[(x - start_row , 'row' , black)] = 1
   """
   Your feature extraction playground for faces.
   It is your choice to modify this.

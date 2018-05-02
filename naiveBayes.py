@@ -57,7 +57,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     
     trainingData and validationData are lists of feature Counters.  The corresponding
     label lists contain the correct label for each datum.
-    \
     To get the list of all possible features or labels, use self.features and 
     self.legalLabels.
     """
@@ -79,20 +78,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     self.label_ratio = label_freq.copy()
     self.label_ratio.divideAll(label_total_num)
 
-
-    #hard to do division if using counter()
-    '''
-    label_ratio = [P(label 1), P(label 2), ... P(label n)]
-    '''
-    '''
-
-    #feature_count is a dictionary with key as label, value as a list of feature frequency
-    feature_count = Counter()
-    for label in distinct_label:
-        feature_count[label] = [0 for i in range(feature_len)]
-    for index, label in enumerate(trainingLabels):
-        feature_count[label] += trainingData[index]
-    '''
 
     feature_count = util.Counter()
     for index, label in enumerate(trainingLabels):
