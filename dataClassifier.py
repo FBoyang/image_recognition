@@ -17,6 +17,7 @@ import samples
 import sys
 import util
 import timeit
+import random
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
@@ -747,14 +748,20 @@ def runClassifier(args, options):
   
   # Extract features
   print ("Extracting features...")
-  trainingData = list(map(featureFunction, rawTrainingData))
+
+  #randomly choose 10% percentage of the dataset from the training set
+  percentage = 0.1
+  rand_sample = [i for i in sorted(random.sample(range(numTraining), int(numTraining * percentage)))]
+  sample_rawTrainingData = [rawTrainingData[i] for i in rand_sample]
+  sample_trainingLabels = [trainingLabels[i] for i in rand_sample]
+  trainingData = list(map(featureFunction, sample_rawTrainingData))
   validationData = list(map(featureFunction, rawValidationData))
   testData = list(map(featureFunction, rawTestData))
   
   # Conduct training and testing
   print ("Training...")
   start = timeit.default_timer()
-  classifier.train(trainingData, trainingLabels, validationData, validationLabels)
+  classifier.train(trainingData, sample_trainingLabels, validationData, validationLabels)
   stop = timeit.default_timer()
   print("training time is: ", stop - start)
   print ("Validating...")

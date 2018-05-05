@@ -109,7 +109,10 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     for k in kgrid:
         for label in self.legalLabels:
             freq = label_freq[label]
-            feature_probs = feature_count[label].copy()
+            try:
+                feature_probs = feature_count[label].copy()
+            except:
+                print("Opps, training data is not representative")
             feature_probs.incrementAll(self.features, k)
             feature_probs.divideAll(freq + 2 * k)
             self.feature_probs[label] = feature_probs.copy()
